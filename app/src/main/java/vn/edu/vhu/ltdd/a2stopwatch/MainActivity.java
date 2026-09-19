@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
@@ -112,11 +115,29 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "TẠM DỪNG tại " + accumulated + "ms");
     }
 
+    private void vibrateOnReset() {
+        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+
+        if(vibrator != null && vibrator.hasVibrator()) {
+            Log.d(TAG, "Thiết bị có hỗ trợ rung");
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(
+                        100,
+                        VibrationEffect.DEFAULT_AMPLITUDE)
+                );
+            } else {
+                vibrator.vibrate(100);
+            }
+        } else {
+            Log.d(TAG, "Không có Vibrator trên thiết bị");
+        }
+    }
     private void resetStopwatch() {
         running = false;
         accumulated = 0L;
         startTime = 0L;
         stopTicking();
+        vibrateOnReset();
         updateUi();
         Log.i(TAG, "ĐẶT LẠI về 00:00.0");
     }
@@ -156,7 +177,16 @@ public class MainActivity extends AppCompatActivity {
         long phut = ms / 60000;
         long giay = (ms % 60000) / 1000;
         long phanMuoi = (ms % 1000) / 100;
-        tvTime.setText(String.format(Locale.getDefault(), "%02d:%02d.%d", phut, giay, phanMuoi));
+        tvTime.setText(String.format(Locale.getDefault(),
+                "%02d:%02d.%d",
+                phut,
+                giay,
+                phanMuoi));
+        if(ms > 60000) {
+            tvTime.setTextColor(getColor(R.color.red));
+        } else {
+            tvTime.setTextColor(getColor(R.color.black));
+        }
     }
 
     private void updateUi() {
