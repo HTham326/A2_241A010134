@@ -57,7 +57,7 @@ Ngoài ra, trong project còn thực hiện hai bài nâng cao tự chọn:
 - `onStop`
 - `onRestart`
 - `onDestroy`
-- `onSaveInstaceState`
+- `onSaveInstanceState`
 - `onRestoreInstanceState`
 
 ### Lưu và khôi phục trạng thái
@@ -135,7 +135,7 @@ protected void onDestroy() {
 Ứng dụng theo dõi các **callback** chính của Activity để quan sát quá trình hoạt động: `onCreate()` > `onStart()` > `onResume()` > Activity đang tương tác với người dùng > `onPause()` > `onStop()`
 
 Trong chương trình, các **callback**:
-- `onCcreate`: khởi tạo giao diện và kiểm tra xem có trạng thái cần khôi phục không
+- `onCreate`: khởi tạo giao diện và kiểm tra xem có trạng thái cần khôi phục không
 - `onStart` và `onResume`: ghi Logcat để quan sát vòng đời
 - `onResume` gọi `startTicking()` nếu đồng hồ đang chạy
 - `onPause` gọi `stopTicking()` để dừng việc cập nhật giao diện
@@ -171,11 +171,12 @@ Khi Activity bị tạo lại (khi **xoay màn hình** hoặc bật **Don't keep
 Để giữ trạng thái cấn thiết, chương trình lưu dữ liệu vào `Bundle` trong `onSaveInstanceState()`:
 ```java
 @Override
-protected void onSaveInstanceState() {
+protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
+
     outState.putBoolean(KEY_RUNNING, running);
     outState.putLong(KEY_ACCUMULATED, accumulated);
-    outState.putLong(KEY_START_TIME, startTime);
+    outState.putLong(KEY_START, startTime);
     outState.putInt(KEY_RECREATE, recreateCount);
 }
 ```
@@ -356,8 +357,8 @@ Sau khi khôi phục dữ liệu, danh sách Lap được cập nhật lại tr�
 
 `Ảnh minh chứng`:
 
-![](E:\Pictures\Screenshots\Screenshot%202026-09-19%20142934.png)
-![](E:\Pictures\Screenshots\Screenshot%202026-09-19%20143537.png)
+![NC1 - Nút Vòng](docs/images/nc1-lap.png)
+![NC1 - Xoay màn hình](docs/images/nc1-rotate.png)
 
 ### 8.2. NC3 - Đổi màu và thêm chức năng rung
 **YÊU CẦU**
@@ -371,21 +372,26 @@ Trong `updateTimeText()`, sau khi tính thời gian hiện tại ứng dựng s�
 
 ```java
  private void updateTimeText() {
-//        long ms = elapsed();
-//        long phut = ms / 60000;
-//        long giay = (ms % 60000) / 1000;
-//        long phanMuoi = (ms % 1000) / 100;
-//        tvTime.setText(String.format(Locale.getDefault(),
-//                "%02d:%02d.%d",
-//                phut,
-//                giay,
-//                phanMuoi));
-        if(ms > 60000) {
-            tvTime.setTextColor(getColor(R.color.red));
-        } else {
-            tvTime.setTextColor(getColor(R.color.black));
-        }
+    long ms = elapsed();
+
+    long phut = ms / 60000;
+    long giay = (ms % 60000) / 1000;
+    long phanMuoi = (ms % 1000) / 100;
+
+    tvTime.setText(String.format(
+            Locale.getDefault(),
+            "%02d:%02d.%d",
+            phut,
+            giay,
+            phanMuoi
+    ));
+
+    if (ms > 60000) {
+        tvTime.setTextColor(getColor(R.color.red));
+    } else {
+        tvTime.setTextColor(getColor(R.color.black));
     }
+}
 ```
 Màu đỏ được khai báo trong file `colors.xml`: `<color name ="red">#FFFF0000</color>`
 
@@ -397,7 +403,7 @@ Kết quả minh họa:
 
 Trong `AndroidManifest.xml`:
 
-`<uses-permission android:name="android:permission.VIBRATE" />`
+<uses-permission android:name="android.permission.VIBRATE" />
 
 **XỬ LÝ RUNG**
 Ứng dụng sử dụng `Vibrator` và `VibrationEffect`
@@ -454,8 +460,9 @@ Tuy nhiên, nếu dùng máy ảo trên Android Studio, không có hiệu ứng 
 1. Bấm `Đặt lại`
 2. Ứng dụng kiểm tra thiết bị có hỗ trợ `Vibrator` hay không
 3. Gọi hiệu ứng rung 100 ms
-4. Logcat ghi: `Thiết bị có hỗ trợ rung` qua `ảnh minh chứng`: 
-![](E:\Pictures\Screenshots\Screenshot%202026-09-19%20151942.png)
+4. Logcat ghi: `Thiết bị có hỗ trợ rung` qua `ảnh minh chứng`:
+
+![NC3 - Đổi màu và rung](docs/images/nc3-vibrate.png)
 
 ## 9. Công nghệ sử dụng
 - Java
